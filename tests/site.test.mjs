@@ -47,8 +47,8 @@ test('analysis safeguards are present', () => {
 
 test('pricing options remain visible', () => {
   includesAll(html, [
-    'Starter ($19)',
-    'Pro ($39)',
-    'Max ($79)'
+    'Starter ($19/month)',
+    'Pro ($39/month)',
+    'Max ($79/month)'
   ]);
 });
