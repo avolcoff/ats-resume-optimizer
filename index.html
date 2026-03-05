@@ -51,6 +51,9 @@
       <h1>Improve your resume for a specific job in minutes.</h1>
       <p>Paste your resume and the job description. Get a clear match score, evidence-backed strengths, and practical edits before you apply.</p>
       <p class="small" style="color:#c7d2fe;margin-top:8px">No signup required for beta. Typical analysis time: under 10 seconds.</p>
+      <div class="note ok" style="margin-top:10px;background:rgba(236,253,243,.12);color:#dcfce7;border-color:rgba(134,239,172,.45)">
+        <b>Why this is different:</b> (1) Evidence-backed matching, (2) risky claim warnings, (3) interview-safe rewrite suggestions.
+      </div>
     </section>
 
     <div class="grid">
@@ -178,17 +181,25 @@
       const evidence = matched.map(([name,re])=>({name,snippet:findEvidenceLine(rs,re)})).filter(x=>x.snippet).slice(0,6);
       const missingNames = missing.map(([name])=>name);
       const suggestions = qualitySuggestions(missingNames);
+      const riskyClaims = missingNames.slice(0,5);
+      const firstBullet = (rs.split(/\n+/).map(x=>x.trim()).find(x => /^[-•]/.test(x)) || '').replace(/^[-•]\s*/, '');
+      const rewriteTarget = riskyClaims[0] || 'role-specific impact';
+      const rewriteBefore = firstBullet || 'Led engineering delivery for production platform.';
+      const rewriteAfter = `${rewriteBefore} Improved alignment for this role by explicitly highlighting ${rewriteTarget} with concrete, truthful evidence.`;
 
       const result=document.getElementById('result');
       result.classList.remove('hidden');
       result.innerHTML = `
         <h3>Your resume-job match</h3>
+        ${evidence.length?`<p><b>Evidence found in your resume:</b></p><ul>${evidence.map(e=>`<li><b>${e.name}:</b> ${e.snippet}</li>`).join('')}</ul>`:'<p><b>Evidence found in your resume:</b> We could not find strong evidence lines yet. Add more detailed bullets in your resume input.</p>'}
         <p><b>Estimated match score:</b> ${score}% <span class="small muted">(${scoreBand(score)} alignment)</span></p>
         <p><b>Confidence:</b> ${confidence} (based on ${required.length} detected job requirements)</p>
         <p><b>What already aligns:</b> ${matched.map(([n])=>n).join(', ') || 'No strong matches detected yet'}</p>
         <p><b>What to strengthen before applying:</b> ${missingNames.slice(0,6).join(', ') || 'Only small gaps detected'}</p>
-        ${evidence.length?`<p><b>Evidence found in your resume:</b></p><ul>${evidence.map(e=>`<li><b>${e.name}:</b> ${e.snippet}</li>`).join('')}</ul>`:''}
+        ${riskyClaims.length?`<p><b>Risky claims to avoid unless you can prove them:</b></p><ul>${riskyClaims.map(r=>`<li>${r}</li>`).join('')}</ul>`:''}
         ${suggestions.length?`<p><b>Suggested next edits:</b></p><ul>${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul>`:''}
+        <p><b>Before/after example rewrite:</b></p>
+        <ul><li><b>Before:</b> ${rewriteBefore}</li><li><b>After:</b> ${rewriteAfter}</li></ul>
         <div class="note warn"><b>Final check:</b> only add items you can support in interviews.</div>
       `;
 
