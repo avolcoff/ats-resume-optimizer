@@ -26,10 +26,10 @@ test('core page structure exists', () => {
 
 test('copy is user-oriented and non-jargony', () => {
   includesAll(html, [
-    'Turn any resume into a job-targeted application in minutes.',
-    'clear match score',
+    'Job-specific ATS check you can defend in interviews.',
+    'No signup. First result in ~10 seconds. Beta is free.',
     'Suggested next edits',
-    'No credit card required in beta.'
+    'Free ATS match check'
   ]);
   assert.ok(!html.includes('Feedback capture to shape paid v1'));
 });
@@ -45,7 +45,7 @@ test('analysis safeguards are present', () => {
   ]);
 });
 
-test('pricing options remain visible', () => {
+test('pricing references remain visible', () => {
   includesAll(html, [
     'Starter ($19/month)',
     'Pro ($39/month)',

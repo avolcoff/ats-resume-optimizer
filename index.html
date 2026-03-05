@@ -4,119 +4,65 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ATS Resume Optimizer — Beta</title>
-  <meta name="description" content="Improve resume-to-job match in minutes with clear, practical suggestions." />
+  <meta name="description" content="Job-specific ATS check with evidence-backed, interview-safe suggestions." />
   <style>
     :root{
-      --bg:#eef2ff;
-      --bg2:#f8fafc;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#475569;
-      --line:#dbe4f0;
-      --brand:#2563eb;
-      --brand2:#1d4ed8;
-      --ok:#166534;
-      --okbg:#ecfdf3;
-      --warn:#9a3412;
-      --warnbg:#fff7ed;
-      --radius:18px;
-      --shadow:0 18px 35px rgba(15, 23, 42, .08);
-      --shadow-soft:0 8px 18px rgba(15, 23, 42, .06);
+      --bg:#eff4ff;--bg2:#f8fafc;--card:#fff;--text:#0f172a;--muted:#475569;--line:#dbe4f0;
+      --brand:#2563eb;--brand2:#1d4ed8;--ok:#166534;--okbg:#ecfdf3;--warn:#9a3412;--warnbg:#fff7ed;
+      --radius:18px;--shadow:0 16px 34px rgba(15,23,42,.08);
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      background: radial-gradient(circle at top, var(--bg) 0%, var(--bg2) 38%);
-      color:var(--text);
-      font-family:Inter, Segoe UI, Arial, sans-serif;
-      line-height:1.5;
-      letter-spacing:.01em;
-    }
-    .wrap{max-width:1080px;margin:0 auto;padding:28px 18px 44px}
-    .hero{
-      background:linear-gradient(135deg,#0b1736 0%, #1e3a8a 62%, #2563eb 100%);
-      color:#fff;border-radius:22px;padding:34px 30px;margin-top:6px;
-      box-shadow:0 26px 44px rgba(37,99,235,.28);
-      position:relative;overflow:hidden;
-    }
-    .hero:before{
-      content:"";
-      position:absolute;inset:auto -60px -80px auto;
-      width:260px;height:260px;border-radius:50%;
-      background:radial-gradient(circle,rgba(255,255,255,.24),rgba(255,255,255,0));
-      pointer-events:none;
-    }
-    .hero h1{margin:0 0 10px;font-size:clamp(1.6rem,3.6vw,2.35rem);line-height:1.15}
+    body{margin:0;background:radial-gradient(circle at top,var(--bg),var(--bg2) 42%);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text);line-height:1.5}
+    .wrap{max-width:1080px;margin:0 auto;padding:24px 16px 42px}
+    .hero{background:linear-gradient(135deg,#0b1736,#1e3a8a 65%,#2563eb);color:#fff;border-radius:22px;padding:30px 24px;box-shadow:0 22px 40px rgba(37,99,235,.28)}
+    .badge{display:inline-block;padding:6px 12px;border-radius:999px;border:1px solid rgba(147,197,253,.7);background:rgba(255,255,255,.09);font-size:12px;font-weight:700;margin-bottom:10px}
+    h1{margin:0 0 10px;font-size:clamp(1.65rem,3.5vw,2.35rem);line-height:1.15}
     .hero p{margin:0;color:#dbeafe;max-width:72ch}
-    .badge{
-      display:inline-block;margin-bottom:12px;border:1px solid rgba(147,197,253,.65);
-      border-radius:999px;padding:6px 12px;font-size:12px;
-      background:rgba(255,255,255,.08);backdrop-filter: blur(4px);
-      font-weight:600;
-    }
-    .grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:18px;margin-top:18px}
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:20px;
-      box-shadow:var(--shadow-soft);
-    }
-    h2,h3{margin:0 0 10px;letter-spacing:-.01em}
+
+    .grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:16px;margin-top:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+    h2,h3{margin:0 0 10px}
     .muted{color:var(--muted)}
-    .note{font-size:13px;padding:11px 12px;border-radius:12px}
+    .note{font-size:13px;padding:10px 12px;border-radius:12px}
     .note.warn{background:var(--warnbg);color:var(--warn);border:1px solid #fdba74}
     .note.ok{background:var(--okbg);color:var(--ok);border:1px solid #86efac}
-    label{display:block;margin:12px 0 7px;font-weight:600;font-size:14px}
-    input,textarea,select{
-      width:100%;padding:12px 13px;border:1px solid #c7d2e2;border-radius:12px;font:inherit;background:#fff;
-      transition:border-color .2s ease, box-shadow .2s ease, transform .06s ease;
-    }
-    input::placeholder, textarea::placeholder{color:#94a3b8}
-    input:focus,textarea:focus,select:focus{
-      outline:none;border-color:#7aa2ff;box-shadow:0 0 0 4px rgba(37,99,235,.16);
-    }
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-    button{border:0;border-radius:12px;padding:11px 15px;font-weight:700;cursor:pointer;transition:transform .08s ease, box-shadow .2s ease}
-    button:active{transform:translateY(1px)}
-    .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
-    .primary{background:linear-gradient(180deg,var(--brand),var(--brand2));color:#fff;box-shadow:0 6px 14px rgba(37,99,235,.35)}
-    .primary:hover{filter:brightness(1.04)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    label{display:block;margin:10px 0 6px;font-weight:600;font-size:14px}
+    input,textarea,select{width:100%;padding:11px 12px;border:1px solid #c7d2e2;border-radius:12px;font:inherit;background:#fff}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:#7aa2ff;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button{border:0;border-radius:12px;padding:11px 15px;font-weight:700;cursor:pointer}
+    .primary{background:linear-gradient(180deg,var(--brand),var(--brand2));color:#fff}
     .secondary{background:#eef2ff;color:#1e3a8a;border:1px solid #c7d2fe}
-    button[disabled]{opacity:.65;cursor:not-allowed;box-shadow:none}
-    ul{margin:8px 0 0 18px;padding:0}
+    button[disabled]{opacity:.65;cursor:not-allowed}
+    .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:6px}
     .kpi{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,#fff,#f8fbff)}
-    .kpi b{font-size:15px}
+    .kpi b{display:block;margin-bottom:4px}
     .hidden{display:none}
     .small{font-size:12px}
-    .footer{margin-top:16px;color:var(--muted);font-size:12px;text-align:center}
-    #result.card{border-color:#bfdbfe;box-shadow:var(--shadow)}
-    @media (max-width:920px){
-      .grid{grid-template-columns:1fr}
-      .row{grid-template-columns:1fr}
-      .hero{padding:26px 20px;border-radius:18px}
-    }
+    .footer{margin-top:14px;color:var(--muted);font-size:12px;text-align:center}
+    ul{margin:8px 0 0 18px;padding:0}
+    @media (max-width:920px){.grid,.row{grid-template-columns:1fr}}
     @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <section class="hero" aria-label="Product overview">
-      <span class="badge">Beta • Free for now</span>
-      <h1>Turn any resume into a job-targeted application in minutes.</h1>
-      <p>Paste your resume + the job description and get a clear match score, proof-backed strengths, and practical edits you can apply before submitting.</p>
-      <p class="small" style="color:#c7d2fe;margin-top:8px">No signup required. First result in ~10 seconds.</p>
-      <div class="note ok" style="margin-top:10px;background:rgba(236,253,243,.12);color:#dcfce7;border-color:rgba(134,239,172,.45)">
-        <b>Why this wins vs generic AI tools:</b> evidence-backed matching, hallucination-risk reduction, and interview-safe rewrite suggestions.
+      <div class="badge">Beta • Free for now</div>
+      <h1>Job-specific ATS check you can defend in interviews.</h1>
+      <p>Paste your resume and job description to get a clear match score, proof-backed strengths, and practical edits before you apply.</p>
+      <p class="small" style="margin-top:10px;color:#c7d2fe">No signup. First result in ~10 seconds. Beta is free.</p>
+      <div class="note ok" style="margin-top:10px;background:rgba(236,253,243,.12);color:#dcfce7;border-color:rgba(134,239,172,.5)">
+        Unlike generic AI, each suggestion links back to real lines in your resume — reducing hallucination risk and overclaiming.
       </div>
     </section>
 
     <div class="grid">
       <section class="card" aria-label="ATS analysis form">
-        <h2>Free resume check</h2>
-        <p class="muted">For active job seekers who want faster, higher-confidence applications.</p>
-        <div class="note warn"><b>Important:</b> Keep everything accurate. Only include experience you can confidently discuss in interviews.</div>
+        <h2>Free ATS match check</h2>
+        <p class="muted">Designed for one specific job at a time — ideal when you care about quality applications, not spray-and-pray.</p>
+        <div class="note warn"><b>Important:</b> only include experience you can confidently support in interviews.</div>
 
         <form id="ats-form" name="ats-intake" method="POST" data-netlify="true" netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="ats-intake" />
@@ -127,8 +73,8 @@
 
           <div class="row">
             <div>
-              <label for="targetRole">Target role</label>
-              <input id="targetRole" name="target_role" required placeholder="e.g. Senior Backend Engineer" />
+              <label for="targetRole">Target role title (optional)</label>
+              <input id="targetRole" name="target_role" placeholder="e.g. Senior Backend Engineer" />
             </div>
             <div>
               <label for="email">Email (optional)</label>
@@ -140,50 +86,45 @@
           <textarea id="jd" name="job_description" rows="6" required placeholder="Paste the full JD text"></textarea>
 
           <label for="resume">Your resume</label>
-          <textarea id="resume" name="resume_text" rows="8" required placeholder="Paste your current resume text"></textarea>
-          <p class="small muted">Tip: include your experience bullets (not just summary) for better match quality.</p>
-
-          <label for="plan">If this saves you time, which monthly plan would feel fair?</label>
-          <select id="plan" name="plan_interest">
-            <option>Starter ($19/month)</option>
-            <option>Pro ($39/month)</option>
-            <option>Max ($79/month)</option>
-            <option>Not sure yet</option>
-          </select>
+          <textarea id="resume" name="resume_text" rows="8" required placeholder="Paste your full resume text (including bullet points)"></textarea>
+          <p class="small muted">Summaries alone reduce match accuracy.</p>
 
           <div class="actions">
-            <button id="analyzeBtn" type="button" class="primary">Run free analysis</button>
-            <button id="submitBtn" type="submit" class="secondary hidden">Submit beta feedback</button>
+            <button id="analyzeBtn" type="button" class="primary">Check my match</button>
+            <button id="submitBtn" type="submit" class="secondary hidden">Send beta feedback</button>
           </div>
-          <p class="small muted">No credit card required in beta.</p>
+          <p class="small muted">Your input is used only for this analysis and feedback workflow in beta.</p>
         </form>
       </section>
 
-      <aside class="card" aria-label="Trust and pricing summary">
-        <h3>Why people use this</h3>
-        <div class="kpi"><b>Clear match signal</b><div class="muted">Know where your resume is strong/weak for this exact role.</div></div>
-        <div class="kpi"><b>Practical edits</b><div class="muted">Get concrete improvements you can apply now.</div></div>
-        <div class="kpi"><b>Evidence-backed output</b><div class="muted">Matched skills are tied to lines found in your resume text.</div></div>
-        <div class="note ok">Beta is free. Paid plans are shown for future pricing validation only.</div>
+      <aside class="card" aria-label="Benefits">
+        <h3>Why this helps</h3>
+        <div class="kpi"><b>Decide faster</b><div class="muted">See quickly if this role is worth a full custom application.</div></div>
+        <div class="kpi"><b>Fix what matters</b><div class="muted">Prioritize the 3–5 highest-impact gaps before you submit.</div></div>
+        <div class="kpi"><b>Stay interview-safe</b><div class="muted">Avoid edits that sound good but aren’t supported by your real experience.</div></div>
+        <div class="note ok">Beta is free. Planned pricing for later validation: $19 / $39 / $79 monthly.</div>
       </aside>
     </div>
 
-    <section class="card" aria-label="Why not just ChatGPT?" style="margin-top:14px">
-      <h3>Why use this instead of plain ChatGPT?</h3>
-      <div class="row">
-        <div>
-          <div class="kpi"><b>Purpose-built workflow</b><div class="muted">You don’t need to prompt-engineer. Paste resume + JD and get structured output immediately.</div></div>
-          <div class="kpi"><b>Evidence-backed checks</b><div class="muted">Matches are tied to specific lines found in your resume text, so results are easier to trust.</div></div>
-        </div>
-        <div>
-          <div class="kpi"><b>Interview-safe guidance</b><div class="muted">Flags risky claims and pushes practical edits you can support in interviews.</div></div>
-          <div class="kpi"><b>Job-specific focus</b><div class="muted">Optimized for one concrete application decision, not generic resume writing.</div></div>
-        </div>
-      </div>
+    <section class="card" style="margin-top:14px" aria-label="Sample output">
+      <h3>Example output format</h3>
+      <p class="muted small">Match score: 72/100 • Strong alignment: Python, backend APIs • Gaps: Kubernetes, threat modeling • Suggested bullet tweak with truthful evidence.</p>
     </section>
 
     <section id="result" class="card hidden" aria-live="polite"></section>
     <section id="submitted" class="note ok hidden" aria-live="polite">Thanks — your submission was saved. We’ll use it to improve analysis quality.</section>
+
+    <section class="card" style="margin-top:14px" aria-label="Pricing poll">
+      <h3>Optional pricing feedback</h3>
+      <p class="muted small">This is only for research while beta remains free.</p>
+      <label for="plan">If this saves you time, which monthly plan would feel fair?</label>
+      <select id="plan" name="plan_interest" form="ats-form">
+        <option>Starter ($19/month)</option>
+        <option>Pro ($39/month)</option>
+        <option>Max ($79/month)</option>
+        <option>Not sure yet</option>
+      </select>
+    </section>
 
     <p class="footer">This beta is an assistant tool, not legal or hiring advice.</p>
   </div>
@@ -276,7 +217,7 @@
 
       document.getElementById('submitBtn').classList.remove('hidden');
       analyzeBtn.disabled = false;
-      analyzeBtn.textContent = 'Run free analysis';
+      analyzeBtn.textContent = 'Check my match';
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({event:'ats_analysis_run', score, required_skills:required.length, matched_skills:matched.length});
     }
@@ -294,7 +235,7 @@
         btn.textContent='Submitted';
       }catch(_){
         alert('Submission failed. Please try again.');
-        btn.disabled=false; btn.textContent='Submit beta feedback';
+        btn.disabled=false; btn.textContent='Send beta feedback';
       }
     });
   </script>
