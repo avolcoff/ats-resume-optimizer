@@ -168,34 +168,58 @@
       if (el) el.value = qs.get(k) || '';
     });
 
-    const stop = new Set(['the','and','for','with','that','this','you','your','from','have','will','are','our','not','but','all','job','role','work','experience','skills']);
-    const tokens = t => (t||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>2&&!stop.has(w));
-    const uniq = a => [...new Set(a)];
+    const SKILL_PATTERNS = [
+      ['python', /\bpython\b/i],
+      ['linux', /\blinux\b/i],
+      ['backend systems', /\bbackend\b|\bservices\b/i],
+      ['security engineering', /\bsecurity\b|\bdevsecops\b/i],
+      ['ci/cd pipelines', /\bci\/?cd\b|\bpipeline(s)?\b/i],
+      ['automation tooling', /\bautomation\b|\btooling\b/i],
+      ['system design', /\bsystem design\b|\barchitecture\b/i],
+      ['debugging', /\bdebug(ging)?\b|\btroubleshoot(ing)?\b/i],
+      ['cross-functional collaboration', /cross-functional|stakeholder/i],
+      ['version control', /\bgit\b|version control/i],
+      ['key management / cryptography', /key management|cryptograph|attestation|secrets?/i],
+      ['audit / integrity controls', /audit|integrity|policy enforcement/i],
+      ['threat modeling', /threat modeling/i],
+      ['kubernetes', /\bkubernetes\b|\beks\b|\bopenshift\b/i],
+      ['aws/cloud', /\baws\b|\bcloud\b/i]
+    ];
+
+    function hasYearsSignal(text){
+      const m = text.match(/(\d+)\+?\s*years?/i);
+      return m ? parseInt(m[1],10) : null;
+    }
 
     function runAnalysis(){
       const jd = document.getElementById('jd').value.trim();
       const rs = document.getElementById('resume').value.trim();
       if(!jd || !rs){ alert('Please fill both Job Description and Resume fields.'); return; }
 
-      const jdTok = uniq(tokens(jd));
-      const rsSet = new Set(uniq(tokens(rs)));
-      const overlap = jdTok.filter(t=>rsSet.has(t));
-      const missing = jdTok.filter(t=>!rsSet.has(t)).slice(0,15);
-      const score = Math.max(20, Math.min(95, Math.round((overlap.length / (jdTok.length || 1))*100)));
+      const required = SKILL_PATTERNS.filter(([,re]) => re.test(jd));
+      const matched = required.filter(([,re]) => re.test(rs));
+      const missing = required.filter(([,re]) => !re.test(rs));
+
+      const yearsRequired = hasYearsSignal(jd);
+      const yearsResume = hasYearsSignal(rs);
+      const yearsBonus = (yearsRequired && yearsResume && yearsResume >= yearsRequired) ? 8 : 0;
+
+      const base = required.length ? (matched.length / required.length) * 100 : 55;
+      const score = Math.max(25, Math.min(95, Math.round(base * 0.9 + yearsBonus)));
 
       const result = document.getElementById('result');
       result.classList.remove('hidden');
       result.innerHTML = `
         <h3>Your quick resume-job match</h3>
         <p><b>Estimated match score:</b> ${score}%</p>
-        <p><b>What already matches:</b> ${overlap.slice(0,20).join(', ') || 'No strong matches detected yet'}</p>
-        <p><b>What to strengthen before applying:</b> ${missing.join(', ') || 'Only small gaps detected'}</p>
+        <p><b>What already matches:</b> ${matched.map(([name])=>name).join(', ') || 'No strong matches detected yet'}</p>
+        <p><b>What to strengthen before applying:</b> ${missing.map(([name])=>name).join(', ') || 'Only small gaps detected'}</p>
         <div class="warn"><b>Important:</b> only add terms you can truthfully support with real experience.</div>
       `;
 
       document.getElementById('submitBtn').classList.remove('hidden');
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({event:'ats_analysis_run', score});
+      window.dataLayer.push({event:'ats_analysis_run', score, required_skills: required.length, matched_skills: matched.length});
     }
 
     document.getElementById('analyzeBtn').addEventListener('click', runAnalysis);
