@@ -6,145 +6,191 @@
   <title>ATS Resume Optimizer — Truth-Guarded (Beta)</title>
   <meta name="description" content="ATS Resume Optimizer beta. Compare resume vs job description and get truth-guarded improvement suggestions." />
   <style>
-    body{font-family:Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;line-height:1.5;color:#111}
-    .card{border:1px solid #ddd;border-radius:10px;padding:16px;margin:12px 0}
-    .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-    h1{margin-bottom:4px}
-    .muted{color:#666}
-    input,textarea,select,button{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px;font-size:14px}
-    button{background:#111;color:#fff;cursor:pointer}
-    button[disabled]{opacity:.6;cursor:not-allowed}
-    .ok{background:#edf8ef;border:1px solid #b9e2c0;padding:10px;border-radius:8px}
-    .warn{background:#fff7ed;border:1px solid #fed7aa;padding:10px;border-radius:8px}
+    :root{
+      --bg:#0b1020;
+      --surface:#111831;
+      --surface2:#ffffff;
+      --text:#0f172a;
+      --muted:#5b6476;
+      --brand:#2563eb;
+      --brand2:#1d4ed8;
+      --okbg:#ecfdf3;
+      --okbd:#86efac;
+      --warnbg:#fff7ed;
+      --warnbd:#fdba74;
+      --line:#e5e7eb;
+      --shadow:0 10px 30px rgba(15,23,42,.12);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text);background:#f4f7fb;line-height:1.45}
+    .hero{background:linear-gradient(135deg,var(--bg),#172554);color:#fff;padding:48px 18px}
+    .hero-wrap{max-width:980px;margin:0 auto;display:grid;grid-template-columns:1.3fr .9fr;gap:24px;align-items:center}
+    .badge{display:inline-block;background:rgba(37,99,235,.2);border:1px solid rgba(147,197,253,.5);padding:6px 10px;border-radius:999px;font-size:12px;margin-bottom:12px}
+    h1{margin:0 0 10px;font-size:34px;line-height:1.1}
+    .lead{margin:0;color:#dbeafe;max-width:62ch}
+    .hero-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:16px;border-radius:12px}
+    .hero-card b{display:block;margin-bottom:8px}
+    .hero-card ul{margin:0;padding-left:18px;color:#e2e8f0}
+
+    .container{max-width:980px;margin:-22px auto 36px;padding:0 16px}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+    .card{background:var(--surface2);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+    .card h3{margin:0 0 10px}
+    .muted{color:var(--muted)}
+    .warn{background:var(--warnbg);border:1px solid var(--warnbd);padding:12px;border-radius:10px;font-size:14px}
+    .ok{background:var(--okbg);border:1px solid var(--okbd);padding:12px;border-radius:10px}
+
+    .pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .price{border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;background:#fafcff}
+    .price b{font-size:18px}
+
+    label{display:block;font-weight:600;margin-top:10px;margin-bottom:5px}
+    input,textarea,select{width:100%;padding:11px 12px;border:1px solid #cfd5df;border-radius:10px;font-size:14px;background:#fff}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .btn{appearance:none;border:none;border-radius:10px;padding:11px 16px;font-weight:600;cursor:pointer}
+    .btn.primary{background:var(--brand);color:#fff}
+    .btn.primary:hover{background:var(--brand2)}
+    .btn.subtle{background:#eef2ff;color:#1e3a8a;border:1px solid #c7d2fe}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+
+    .kpis{display:grid;gap:10px}
+    .kpi{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fcfdff}
+    .kpi b{display:block;font-size:18px}
+
     .hidden{display:none}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media(max-width:720px){.row{grid-template-columns:1fr}}
-    code{background:#f4f4f4;padding:2px 6px;border-radius:4px}
+    .small{font-size:12px;color:var(--muted)}
+    .footer{margin-top:10px}
+
+    @media (max-width:900px){
+      .hero-wrap{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+      h1{font-size:28px}
+    }
+    @media (max-width:640px){
+      .pricing{grid-template-columns:1fr}
+      .row{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
-  <h1>ATS Resume Optimizer</h1>
-  <div class="muted">Truth-guarded beta — built to improve resume/job fit without inventing experience.</div>
-
-  <div class="card warn">
-    <b>Beta notice:</b> This is an early version. Use output as guidance and always review before submitting applications.
-  </div>
-
-  <div class="card">
-    <h3>How it works</h3>
-    <ol>
-      <li>Paste your resume and target job description</li>
-      <li>See a quick fit score + missing keyword hints</li>
-      <li>Submit feedback / join pilot for full tailored output</li>
-    </ol>
-  </div>
-
-  <div class="card">
-    <h3>Pricing test (week 1)</h3>
-    <div class="plans">
-      <div class="card"><b>Starter</b><br>$19</div>
-      <div class="card"><b>Pro</b><br>$39</div>
-      <div class="card"><b>Max</b><br>$79</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Free analysis intake</h3>
-
-    <!-- Netlify Forms capture -->
-    <form id="ats-form" name="ats-intake" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-      <input type="hidden" name="form-name" value="ats-intake" />
-      <input type="hidden" name="utm_source" id="utm_source" />
-      <input type="hidden" name="utm_medium" id="utm_medium" />
-      <input type="hidden" name="utm_campaign" id="utm_campaign" />
-      <p class="hidden">
-        <label>Don’t fill this out: <input name="bot-field" /></label>
-      </p>
-
-      <div class="row">
-        <div>
-          <label for="targetRole">Target role</label>
-          <input id="targetRole" name="target_role" required placeholder="e.g. Senior Product Manager" />
-        </div>
-        <div>
-          <label for="email">Email (optional)</label>
-          <input id="email" name="email" type="email" placeholder="you@example.com" />
-        </div>
+  <section class="hero">
+    <div class="hero-wrap">
+      <div>
+        <div class="badge">Beta • Truth-Guarded</div>
+        <h1>Improve ATS fit without inventing experience.</h1>
+        <p class="lead">Paste your resume and target job description to get a quick fit score and keyword gap hints. This beta is built for honest optimization only.</p>
       </div>
+      <div class="hero-card">
+        <b>What you get in this beta</b>
+        <ul>
+          <li>Quick ATS fit signal</li>
+          <li>Missing-term hints to review</li>
+          <li>Feedback capture to shape paid v1</li>
+        </ul>
+      </div>
+    </div>
+  </section>
 
-      <label for="jd">Paste Job Description</label>
-      <textarea id="jd" name="job_description" rows="6" required placeholder="Paste JD text..."></textarea>
+  <main class="container">
+    <div class="grid">
+      <section class="card">
+        <h3>Free analysis intake</h3>
+        <p class="muted">Use real experience only. Do not add claims you cannot support.</p>
+        <div class="warn"><b>Beta notice:</b> Output is guidance, not final legal/HR advice. Always review before applying.</div>
 
-      <label for="resume">Paste Resume</label>
-      <textarea id="resume" name="resume_text" rows="8" required placeholder="Paste resume text..."></textarea>
+        <form id="ats-form" name="ats-intake" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="ats-intake" />
+          <input type="hidden" name="utm_source" id="utm_source" />
+          <input type="hidden" name="utm_medium" id="utm_medium" />
+          <input type="hidden" name="utm_campaign" id="utm_campaign" />
+          <p class="hidden"><label>Don’t fill this out: <input name="bot-field" /></label></p>
 
-      <label for="plan">Plan interest</label>
-      <select id="plan" name="plan_interest">
-        <option>$19 Starter</option>
-        <option>$39 Pro</option>
-        <option>$79 Max</option>
-      </select>
+          <div class="row">
+            <div>
+              <label for="targetRole">Target role</label>
+              <input id="targetRole" name="target_role" required placeholder="e.g. Senior Backend Engineer" />
+            </div>
+            <div>
+              <label for="email">Email (optional)</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" />
+            </div>
+          </div>
 
-      <button id="analyzeBtn" type="button">Run Free Analysis</button>
-      <button id="submitBtn" type="submit" class="hidden">Submit Beta Feedback</button>
+          <label for="jd">Paste job description</label>
+          <textarea id="jd" name="job_description" rows="6" required placeholder="Paste full JD text..."></textarea>
 
-      <small>No fabricated claims. Suggestions must stay grounded in your provided experience.</small>
-    </form>
-  </div>
+          <label for="resume">Paste resume</label>
+          <textarea id="resume" name="resume_text" rows="8" required placeholder="Paste resume text..."></textarea>
 
-  <div id="result" class="card hidden"></div>
-  <div id="submitted" class="ok hidden">Thanks — your beta submission was captured. We’ll use this to improve ATS matching quality.</div>
+          <label for="plan">Plan interest</label>
+          <select id="plan" name="plan_interest">
+            <option>$19 Starter</option>
+            <option>$39 Pro</option>
+            <option>$79 Max</option>
+          </select>
+
+          <div class="actions">
+            <button id="analyzeBtn" class="btn primary" type="button">Run free analysis</button>
+            <button id="submitBtn" class="btn subtle hidden" type="submit">Submit beta feedback</button>
+          </div>
+
+          <div class="footer small">No fabricated claims. Suggestions stay grounded in provided experience.</div>
+        </form>
+      </section>
+
+      <aside class="card">
+        <h3>Pricing (test)</h3>
+        <div class="pricing">
+          <div class="price"><div>Starter</div><b>$19</b></div>
+          <div class="price"><div>Pro</div><b>$39</b></div>
+          <div class="price"><div>Max</div><b>$79</b></div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="kpis">
+          <div class="kpi"><span class="muted">Goal</span><b>First paid users</b></div>
+          <div class="kpi"><span class="muted">Focus</span><b>Trust + clarity</b></div>
+          <div class="kpi"><span class="muted">Guardrail</span><b>Factual only</b></div>
+        </div>
+      </aside>
+    </div>
+
+    <section id="result" class="card hidden" aria-live="polite"></section>
+    <section id="submitted" class="ok hidden" aria-live="polite">Thanks — your beta submission was captured. We’ll use this to improve matching quality.</section>
+  </main>
 
   <script>
     const qs = new URLSearchParams(location.search);
-    const utm = {
-      utm_source: qs.get('utm_source') || '',
-      utm_medium: qs.get('utm_medium') || '',
-      utm_campaign: qs.get('utm_campaign') || ''
-    };
-    Object.entries(utm).forEach(([k,v]) => {
+    ['utm_source','utm_medium','utm_campaign'].forEach(k => {
       const el = document.getElementById(k);
-      if (el) el.value = v;
+      if (el) el.value = qs.get(k) || '';
     });
 
-    const commonStop = new Set(['the','and','for','with','that','this','you','your','from','have','will','are','our','not','but','all','job','role','work','experience','skills']);
-
-    function tokens(text){
-      return (text || '')
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, ' ')
-        .split(/\s+/)
-        .filter(w => w.length > 2 && !commonStop.has(w));
-    }
-
-    function unique(arr){ return [...new Set(arr)]; }
+    const stop = new Set(['the','and','for','with','that','this','you','your','from','have','will','are','our','not','but','all','job','role','work','experience','skills']);
+    const tokens = t => (t||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>2&&!stop.has(w));
+    const uniq = a => [...new Set(a)];
 
     function runAnalysis(){
       const jd = document.getElementById('jd').value.trim();
-      const resume = document.getElementById('resume').value.trim();
-      if (!jd || !resume) {
-        alert('Please fill both Job Description and Resume fields.');
-        return;
-      }
+      const rs = document.getElementById('resume').value.trim();
+      if(!jd || !rs){ alert('Please fill both Job Description and Resume fields.'); return; }
 
-      const jdTok = unique(tokens(jd));
-      const rsTok = unique(tokens(resume));
-      const rsSet = new Set(rsTok);
-
-      const overlap = jdTok.filter(t => rsSet.has(t));
-      const missing = jdTok.filter(t => !rsSet.has(t)).slice(0, 12);
-
-      const raw = jdTok.length ? (overlap.length / jdTok.length) : 0;
-      const score = Math.max(20, Math.min(95, Math.round(raw * 100)));
+      const jdTok = uniq(tokens(jd));
+      const rsSet = new Set(uniq(tokens(rs)));
+      const overlap = jdTok.filter(t=>rsSet.has(t));
+      const missing = jdTok.filter(t=>!rsSet.has(t)).slice(0,15);
+      const score = Math.max(20, Math.min(95, Math.round((overlap.length / (jdTok.length || 1))*100)));
 
       const result = document.getElementById('result');
       result.classList.remove('hidden');
       result.innerHTML = `
-        <h3>Quick ATS Fit Result (Beta)</h3>
+        <h3>Quick fit result (beta)</h3>
         <p><b>Estimated fit score:</b> ${score}%</p>
-        <p><b>Matched terms:</b> ${overlap.slice(0, 20).join(', ') || 'None detected'}</p>
+        <p><b>Matched terms:</b> ${overlap.slice(0,20).join(', ') || 'None detected yet'}</p>
         <p><b>Missing terms to review:</b> ${missing.join(', ') || 'Low gap detected'}</p>
-        <div class="warn"><b>Important:</b> Only add terms you can truthfully support with real experience.</div>
+        <div class="warn"><b>Important:</b> only add terms you can truthfully support with real experience.</div>
       `;
 
       document.getElementById('submitBtn').classList.remove('hidden');
@@ -160,16 +206,20 @@
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
       btn.textContent = 'Submitting...';
-
       const formData = new FormData(form);
+
       try {
-        await fetch('/', { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: new URLSearchParams(formData).toString() });
+        await fetch('/', {
+          method:'POST',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body:new URLSearchParams(formData).toString()
+        });
         document.getElementById('submitted').classList.remove('hidden');
         btn.textContent = 'Submitted';
-      } catch(err) {
+      } catch (err){
         alert('Submission failed. Please try again.');
         btn.disabled = false;
-        btn.textContent = 'Submit Beta Feedback';
+        btn.textContent = 'Submit beta feedback';
       }
     });
   </script>
