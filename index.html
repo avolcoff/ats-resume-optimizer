@@ -142,11 +142,13 @@
       </section>
 
       <aside class="card">
-        <h3>Early-access pricing</h3>
+        <h3>Beta access</h3>
+        <div class="warn"><b>Currently free during beta.</b> We are validating quality before enabling paid plans.</div>
+        <div style="height:10px"></div>
         <div class="pricing">
-          <div class="price"><div>Starter</div><b>$19</b></div>
-          <div class="price"><div>Pro</div><b>$39</b></div>
-          <div class="price"><div>Max</div><b>$79</b></div>
+          <div class="price"><div>Planned Starter</div><b>$19</b></div>
+          <div class="price"><div>Planned Pro</div><b>$39</b></div>
+          <div class="price"><div>Planned Max</div><b>$79</b></div>
         </div>
         <div style="height:10px"></div>
         <div class="kpis">
@@ -200,6 +202,21 @@
       const matched = required.filter(([,re]) => re.test(rs));
       const missing = required.filter(([,re]) => !re.test(rs));
 
+      const confidence = required.length >= 8 ? 'High' : (required.length >= 5 ? 'Medium' : 'Low');
+
+      function findEvidenceSnippet(text, regex){
+        const lines = text.split(/\n+/).map(l => l.trim()).filter(Boolean);
+        for (const line of lines){
+          if (regex.test(line)) return line.length > 140 ? line.slice(0,140) + '…' : line;
+        }
+        return null;
+      }
+
+      const evidence = matched
+        .map(([name,re]) => ({name, snippet: findEvidenceSnippet(rs, re)}))
+        .filter(x => x.snippet)
+        .slice(0,6);
+
       const yearsRequired = hasYearsSignal(jd);
       const yearsResume = hasYearsSignal(rs);
       const yearsBonus = (yearsRequired && yearsResume && yearsResume >= yearsRequired) ? 8 : 0;
@@ -209,11 +226,25 @@
 
       const result = document.getElementById('result');
       result.classList.remove('hidden');
+      const topMissing = missing.map(([name])=>name).slice(0,6);
+      const suggestions = topMissing.map(name => {
+        if (name === 'key management / cryptography') return 'If true for your background, add one bullet mentioning secrets/key handling or security controls you implemented.';
+        if (name === 'threat modeling') return 'If true, mention any architecture/security review process where you identified risks and mitigations.';
+        if (name === 'audit / integrity controls') return 'If true, add a concrete example of integrity checks, policy enforcement, or auditability improvements.';
+        if (name === 'automation tooling') return 'Add one bullet describing automation you built and the impact (speed, quality, reliability).';
+        if (name === 'debugging') return 'Add one bullet showing a complex issue you debugged and resolved in production.';
+        if (name === 'version control') return 'Mention collaborative Git workflow (PR reviews, branching, CI checks) if this is part of your work.';
+        return `Add truthful evidence for: ${name}.`;
+      });
+
       result.innerHTML = `
         <h3>Your quick resume-job match</h3>
         <p><b>Estimated match score:</b> ${score}%</p>
+        <p><b>Confidence:</b> ${confidence} (based on ${required.length} detected JD requirements)</p>
         <p><b>What already matches:</b> ${matched.map(([name])=>name).join(', ') || 'No strong matches detected yet'}</p>
-        <p><b>What to strengthen before applying:</b> ${missing.map(([name])=>name).join(', ') || 'Only small gaps detected'}</p>
+        <p><b>What to strengthen before applying:</b> ${topMissing.join(', ') || 'Only small gaps detected'}</p>
+        ${evidence.length ? `<p><b>Evidence found in your resume:</b></p><ul>${evidence.map(e=>`<li><b>${e.name}:</b> ${e.snippet}</li>`).join('')}</ul>` : ''}
+        ${suggestions.length ? `<p><b>Suggested next edits (truthful only):</b></p><ul>${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul>` : ''}
         <div class="warn"><b>Important:</b> only add terms you can truthfully support with real experience.</div>
       `;
 
