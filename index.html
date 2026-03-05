@@ -80,15 +80,15 @@
     <div class="hero-wrap">
       <div>
         <div class="badge">Beta • Truth-Guarded</div>
-        <h1>Improve ATS fit without inventing experience.</h1>
-        <p class="lead">Paste your resume and target job description to get a quick fit score and keyword gap hints. This beta is built for honest optimization only.</p>
+        <h1>Get more interview-ready applications in minutes.</h1>
+        <p class="lead">Paste your resume and the job description. You’ll instantly see where your resume is weak and what to improve — while staying 100% truthful to your real experience.</p>
       </div>
       <div class="hero-card">
-        <b>What you get in this beta</b>
+        <b>What you get right now</b>
         <ul>
-          <li>Quick ATS fit signal</li>
-          <li>Missing-term hints to review</li>
-          <li>Feedback capture to shape paid v1</li>
+          <li>A quick match score for this specific job</li>
+          <li>A clear list of what to improve in your resume</li>
+          <li>Suggestions you can actually use today before applying</li>
         </ul>
       </div>
     </div>
@@ -97,9 +97,9 @@
   <main class="container">
     <div class="grid">
       <section class="card">
-        <h3>Free analysis intake</h3>
-        <p class="muted">Use real experience only. Do not add claims you cannot support.</p>
-        <div class="warn"><b>Beta notice:</b> Output is guidance, not final legal/HR advice. Always review before applying.</div>
+        <h3>Free resume check</h3>
+        <p class="muted">Goal: help you tailor your resume faster for each application.</p>
+        <div class="warn"><b>Important:</b> Keep everything truthful. Only include skills and achievements you can genuinely support.</div>
 
         <form id="ats-form" name="ats-intake" method="POST" data-netlify="true" netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="ats-intake" />
@@ -142,7 +142,7 @@
       </section>
 
       <aside class="card">
-        <h3>Pricing (test)</h3>
+        <h3>Early-access pricing</h3>
         <div class="pricing">
           <div class="price"><div>Starter</div><b>$19</b></div>
           <div class="price"><div>Pro</div><b>$39</b></div>
@@ -150,9 +150,9 @@
         </div>
         <div style="height:10px"></div>
         <div class="kpis">
-          <div class="kpi"><span class="muted">Goal</span><b>First paid users</b></div>
-          <div class="kpi"><span class="muted">Focus</span><b>Trust + clarity</b></div>
-          <div class="kpi"><span class="muted">Guardrail</span><b>Factual only</b></div>
+          <div class="kpi"><span class="muted">Best for</span><b>Active job seekers</b></div>
+          <div class="kpi"><span class="muted">Promise</span><b>Clear, practical resume edits</b></div>
+          <div class="kpi"><span class="muted">Trust rule</span><b>No fabricated claims</b></div>
         </div>
       </aside>
     </div>
@@ -186,10 +186,10 @@
       const result = document.getElementById('result');
       result.classList.remove('hidden');
       result.innerHTML = `
-        <h3>Quick fit result (beta)</h3>
-        <p><b>Estimated fit score:</b> ${score}%</p>
-        <p><b>Matched terms:</b> ${overlap.slice(0,20).join(', ') || 'None detected yet'}</p>
-        <p><b>Missing terms to review:</b> ${missing.join(', ') || 'Low gap detected'}</p>
+        <h3>Your quick resume-job match</h3>
+        <p><b>Estimated match score:</b> ${score}%</p>
+        <p><b>What already matches:</b> ${overlap.slice(0,20).join(', ') || 'No strong matches detected yet'}</p>
+        <p><b>What to strengthen before applying:</b> ${missing.join(', ') || 'Only small gaps detected'}</p>
         <div class="warn"><b>Important:</b> only add terms you can truthfully support with real experience.</div>
       `;
 
