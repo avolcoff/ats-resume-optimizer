@@ -64,7 +64,7 @@
         <p class="muted">Designed for one specific job at a time — ideal when you care about quality applications, not spray-and-pray.</p>
         <div class="note warn"><b>Important:</b> only include experience you can confidently support in interviews.</div>
 
-        <form id="ats-form" name="ats-intake" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+        <form id="ats-form" name="ats-intake" method="POST" action="/?submitted=1" data-netlify="true" netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="ats-intake" />
           <input type="hidden" name="utm_source" id="utm_source" />
           <input type="hidden" name="utm_medium" id="utm_medium" />
@@ -224,20 +224,15 @@
 
     document.getElementById('analyzeBtn').addEventListener('click', runAnalysis);
 
-    document.getElementById('ats-form').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const btn=document.getElementById('submitBtn');
-      btn.disabled=true; btn.textContent='Submitting...';
-      const body = new URLSearchParams(new FormData(e.target)).toString();
-      try{
-        await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
-        document.getElementById('submitted').classList.remove('hidden');
-        btn.textContent='Submitted';
-      }catch(_){
-        alert('Submission failed. Please try again.');
-        btn.disabled=false; btn.textContent='Send beta feedback';
+    const submitted = new URLSearchParams(location.search).get('submitted');
+    if (submitted === '1') {
+      document.getElementById('submitted').classList.remove('hidden');
+      const result = document.getElementById('result');
+      if (result && result.classList.contains('hidden')) {
+        result.classList.remove('hidden');
+        result.innerHTML = '<h3>Submission received</h3><p>Thanks — your beta feedback was saved successfully.</p>';
       }
-    });
+    }
   </script>
 </body>
 </html>
