@@ -47,6 +47,18 @@
   </style>
 </head>
 <body>
+  <!-- Netlify form detection fallback -->
+  <form name="ats-intake" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="text" name="target_role" />
+    <input type="email" name="email" />
+    <textarea name="job_description"></textarea>
+    <textarea name="resume_text"></textarea>
+    <select name="plan_interest"><option>Starter ($19/month)</option></select>
+    <input type="hidden" name="utm_source" />
+    <input type="hidden" name="utm_medium" />
+    <input type="hidden" name="utm_campaign" />
+  </form>
+
   <div class="wrap">
     <section class="hero" aria-label="Product overview">
       <div class="badge">Beta • Free for now</div>
