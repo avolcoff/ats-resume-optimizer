@@ -3,26 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ATS Resume Optimizer — Truth-Guarded</title>
+  <title>ATS Resume Optimizer — Truth-Guarded (Beta)</title>
+  <meta name="description" content="ATS Resume Optimizer beta. Compare resume vs job description and get truth-guarded improvement suggestions." />
   <style>
-    body{font-family:Arial,sans-serif;max-width:860px;margin:40px auto;padding:0 16px;line-height:1.5}
+    body{font-family:Arial,sans-serif;max-width:900px;margin:32px auto;padding:0 16px;line-height:1.5;color:#111}
     .card{border:1px solid #ddd;border-radius:10px;padding:16px;margin:12px 0}
     .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-    h1{margin-bottom:6px} small{color:#666}
-    input,textarea,select,button{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px}
+    h1{margin-bottom:4px}
+    .muted{color:#666}
+    input,textarea,select,button{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px;font-size:14px}
     button{background:#111;color:#fff;cursor:pointer}
+    button[disabled]{opacity:.6;cursor:not-allowed}
+    .ok{background:#edf8ef;border:1px solid #b9e2c0;padding:10px;border-radius:8px}
+    .warn{background:#fff7ed;border:1px solid #fed7aa;padding:10px;border-radius:8px}
+    .hidden{display:none}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:720px){.row{grid-template-columns:1fr}}
+    code{background:#f4f4f4;padding:2px 6px;border-radius:4px}
   </style>
 </head>
 <body>
   <h1>ATS Resume Optimizer</h1>
-  <small>Truth-guarded resume tailoring for real job applications.</small>
+  <div class="muted">Truth-guarded beta — built to improve resume/job fit without inventing experience.</div>
+
+  <div class="card warn">
+    <b>Beta notice:</b> This is an early version. Use output as guidance and always review before submitting applications.
+  </div>
 
   <div class="card">
     <h3>How it works</h3>
     <ol>
-      <li>Paste your resume and job description</li>
-      <li>Get a gap report + ATS alignment score</li>
-      <li>Unlock full tailored output on paid plan</li>
+      <li>Paste your resume and target job description</li>
+      <li>See a quick fit score + missing keyword hints</li>
+      <li>Submit feedback / join pilot for full tailored output</li>
     </ol>
   </div>
 
@@ -37,20 +50,128 @@
 
   <div class="card">
     <h3>Free analysis intake</h3>
-    <label>Target role</label>
-    <input placeholder="e.g. Senior Product Manager" />
-    <label>Paste Job Description</label>
-    <textarea rows="6" placeholder="Paste JD text..."></textarea>
-    <label>Paste Resume</label>
-    <textarea rows="8" placeholder="Paste resume text..."></textarea>
-    <label>Plan interest</label>
-    <select>
-      <option>$19 Starter</option>
-      <option>$39 Pro</option>
-      <option>$79 Max</option>
-    </select>
-    <button>Run Free Analysis</button>
-    <small>No fabricated claims. Suggestions must stay grounded in your provided experience.</small>
+
+    <!-- Netlify Forms capture -->
+    <form id="ats-form" name="ats-intake" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="ats-intake" />
+      <input type="hidden" name="utm_source" id="utm_source" />
+      <input type="hidden" name="utm_medium" id="utm_medium" />
+      <input type="hidden" name="utm_campaign" id="utm_campaign" />
+      <p class="hidden">
+        <label>Don’t fill this out: <input name="bot-field" /></label>
+      </p>
+
+      <div class="row">
+        <div>
+          <label for="targetRole">Target role</label>
+          <input id="targetRole" name="target_role" required placeholder="e.g. Senior Product Manager" />
+        </div>
+        <div>
+          <label for="email">Email (optional)</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com" />
+        </div>
+      </div>
+
+      <label for="jd">Paste Job Description</label>
+      <textarea id="jd" name="job_description" rows="6" required placeholder="Paste JD text..."></textarea>
+
+      <label for="resume">Paste Resume</label>
+      <textarea id="resume" name="resume_text" rows="8" required placeholder="Paste resume text..."></textarea>
+
+      <label for="plan">Plan interest</label>
+      <select id="plan" name="plan_interest">
+        <option>$19 Starter</option>
+        <option>$39 Pro</option>
+        <option>$79 Max</option>
+      </select>
+
+      <button id="analyzeBtn" type="button">Run Free Analysis</button>
+      <button id="submitBtn" type="submit" class="hidden">Submit Beta Feedback</button>
+
+      <small>No fabricated claims. Suggestions must stay grounded in your provided experience.</small>
+    </form>
   </div>
+
+  <div id="result" class="card hidden"></div>
+  <div id="submitted" class="ok hidden">Thanks — your beta submission was captured. We’ll use this to improve ATS matching quality.</div>
+
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const utm = {
+      utm_source: qs.get('utm_source') || '',
+      utm_medium: qs.get('utm_medium') || '',
+      utm_campaign: qs.get('utm_campaign') || ''
+    };
+    Object.entries(utm).forEach(([k,v]) => {
+      const el = document.getElementById(k);
+      if (el) el.value = v;
+    });
+
+    const commonStop = new Set(['the','and','for','with','that','this','you','your','from','have','will','are','our','not','but','all','job','role','work','experience','skills']);
+
+    function tokens(text){
+      return (text || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length > 2 && !commonStop.has(w));
+    }
+
+    function unique(arr){ return [...new Set(arr)]; }
+
+    function runAnalysis(){
+      const jd = document.getElementById('jd').value.trim();
+      const resume = document.getElementById('resume').value.trim();
+      if (!jd || !resume) {
+        alert('Please fill both Job Description and Resume fields.');
+        return;
+      }
+
+      const jdTok = unique(tokens(jd));
+      const rsTok = unique(tokens(resume));
+      const rsSet = new Set(rsTok);
+
+      const overlap = jdTok.filter(t => rsSet.has(t));
+      const missing = jdTok.filter(t => !rsSet.has(t)).slice(0, 12);
+
+      const raw = jdTok.length ? (overlap.length / jdTok.length) : 0;
+      const score = Math.max(20, Math.min(95, Math.round(raw * 100)));
+
+      const result = document.getElementById('result');
+      result.classList.remove('hidden');
+      result.innerHTML = `
+        <h3>Quick ATS Fit Result (Beta)</h3>
+        <p><b>Estimated fit score:</b> ${score}%</p>
+        <p><b>Matched terms:</b> ${overlap.slice(0, 20).join(', ') || 'None detected'}</p>
+        <p><b>Missing terms to review:</b> ${missing.join(', ') || 'Low gap detected'}</p>
+        <div class="warn"><b>Important:</b> Only add terms you can truthfully support with real experience.</div>
+      `;
+
+      document.getElementById('submitBtn').classList.remove('hidden');
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({event:'ats_analysis_run', score});
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', runAnalysis);
+
+    document.getElementById('ats-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+
+      const formData = new FormData(form);
+      try {
+        await fetch('/', { method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: new URLSearchParams(formData).toString() });
+        document.getElementById('submitted').classList.remove('hidden');
+        btn.textContent = 'Submitted';
+      } catch(err) {
+        alert('Submission failed. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Submit Beta Feedback';
+      }
+    });
+  </script>
 </body>
 </html>
