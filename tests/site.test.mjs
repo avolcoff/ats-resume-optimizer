@@ -26,8 +26,8 @@ test('core page structure exists', () => {
 
 test('copy is user-oriented and non-jargony', () => {
   includesAll(html, [
-    'Improve your resume for a specific job in minutes.',
-    'Get a clear match score',
+    'Turn any resume into a job-targeted application in minutes.',
+    'clear match score',
     'Suggested next edits',
     'No credit card required in beta.'
   ]);
